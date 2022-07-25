@@ -3,8 +3,9 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 const fs = require('fs');
 const path = require('path');
+const uniqid = require('uniqid');
 
-const {db} = require('./db/db.json');
+const db = require('./db/db.json');
 
 //parse incoming string or array ata
 app.use(express.urlencoded({ extended: true }));
@@ -28,6 +29,17 @@ app.get('/api/notes', (req,res) => {
 });
 
 // API route: POST /api/notes should recieve a new note and save it to db.json with unique id, then return to client
+app.post('/api/notes', (req,res) => {
+    req.body["id"] = uniqid();
+    db.push(req.body);
+    console.log(db);
+    fs.writeFile('./db/db.json', JSON.stringify(db), err => {
+        if (err) {
+            console.log(err)
+        }
+        res.json(db);
+    });
+});
 
 //HTML route: GET * should return the index.html file
 app.get('*', (req,res) => {
